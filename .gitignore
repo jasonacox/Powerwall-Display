@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# Custom
+.idea
+.pioenvs
+.clang_complete
+.gcc-flags.json
+.DS_Store
+sandbox
+.vscode/settings.json
+
