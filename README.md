@@ -1,7 +1,7 @@
 # Powerwall-Display
 Tesla Powerwall display based on 7-segment TM1637 displays and ESP8266 to show current solar generation, powerwall (power and percentage), grid and load power usage. 
 
-![Powerwall-Display.png](Powerwall-Display.png)
+[![Powerwall-Display-Video](https://img.youtube.com/vi/8YzZw6ldIqQ/0.jpg)](https://www.youtube.com/watch?v=8YzZw6ldIqQ "Play Video")
 
 ## 3D Printed Model
 The 3D printed case houses the ESP8266 WeMos controller, two 4-digit displays and one 6-digit display.  The model has a cutout TESLA logo that can be backlit.
@@ -16,7 +16,7 @@ The following components were used to build this kit:
 * ESP8266 WeMos D1 Mini Controller - [Amazon](https://www.amazon.com/dp/B081PX9YFV/ref=cm_sw_em_r_mt_dp_48GWNB0ZD5XM511K98T9) | [AliExpress](https://www.aliexpress.com/item/1005001636509632.html?spm=a2g0s.9042311.0.0.21a34c4dPgfOzp)
 * TM1637 0.56" 4-Digit LED Segment Display (White/Yellow) - [Amazon](https://www.amazon.com/dp/B07MCGDST2/ref=cm_sw_em_r_mt_dp_YD20SFT79CEE5465E9R0?_encoding=UTF8&psc=1) 
 * TM1637 0.36" 4-Digit LED Segment Display (Green) - [Amazon](https://www.amazon.com/dp/B01DKISMXK/ref=cm_sw_em_r_mt_dp_17NDHA13Q8GRYH0W5KTG?_encoding=UTF8&psc=1)
-* TM1637 0.56" 6-Digit LED Segment Display (Red) - [Amazon](https://www.amazon.com/dp/B08G1RYYTQ/ref=cm_sw_em_r_mt_dp_FHDSB6FT03TFHVS02QKB) | [AliExpress]([AliExpress](https://www.aliexpress.com/item/1005002060120661.html?spm=a2g0s.9042311.0.0.21a34c4dPgfOzp)
+* TM1637 0.56" 6-Digit LED Segment Display (Red) - [Amazon](https://www.amazon.com/dp/B08G1RYYTQ/ref=cm_sw_em_r_mt_dp_FHDSB6FT03TFHVS02QKB) | [AliExpress](https://www.aliexpress.com/item/1005002060120661.html?spm=a2g0s.9042311.0.0.21a34c4dPgfOzp)
 * Optional - Green LEDs for Logo Backlight
 
 ## Powerwall Proxy
@@ -62,3 +62,4 @@ const char* WIFI_PWD  = "WIFI_PASSWORD";
 #define CLK3 13   // Display 3 - 4-digit
 #define DIO3 16
 ```
+
