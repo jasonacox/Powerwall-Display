@@ -1,7 +1,8 @@
 /*
   Powerwall-Display
   ESP8266 with Three TM1637 7-Segment Displays - STATIC WIFI SETTINGS
-  
+  https://github.com/jasonacox/Powerwall-Display
+
   Tesla Powerwall display based on 7-segment displays and ESP8266 to show 
   current solar generation, powerwall (power and percentage), grid and 
   load power usage.
@@ -11,7 +12,7 @@
        Display1 (4-digit): Solar Power Generated (W)
        Display2 (6-digit): Rotates display of the following Power metrics:
                              (H)ouse Load (W)
-                             (E)lectric Utility (W) + direction animation
+                             (E)lectric Grid (W) + direction animation
                              (P)owerwall Battery (W) + direction animation
        Display3 (4-digit): Powerwall Battery (% Full) + animation
 
