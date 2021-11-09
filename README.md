@@ -8,6 +8,7 @@ The 3D printed case houses the ESP8266 WeMos controller, two 4-digit displays an
 
 * Thingiverse - [Link](https://www.thingiverse.com/thing:5113169)
 * Local STL - [Link](TeslaSolarDisplay.stl)
+* Tinkercad Original - [Link](https://www.tinkercad.com/things/3FTXlFyVO4z-tesla-solar-display)
 
 ![Powerwall-Display-3D.png](Powerwall-Display-3D.png)
 
