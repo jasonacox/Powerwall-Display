@@ -64,3 +64,6 @@ const char* WIFI_PWD  = "WIFI_PASSWORD";
 #define DIO3 16
 ```
 
+## Schematic
+
+![schematic.png](schematic.png)
