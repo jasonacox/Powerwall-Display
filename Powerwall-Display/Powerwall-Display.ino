@@ -16,6 +16,8 @@
                              (P)owerwall Battery (W) + direction animation
        Display3 (4-digit): Powerwall Battery (% Full) + animation
 
+     Displays in W unit for 1-9999W values and kW for 10.0kW and above.
+
   This sketch requires pyPowerwall proxy - http://<proxy-address>:8675/csv
 
      Proxy Install Instructions:
@@ -55,6 +57,8 @@ const char* WIFI_PWD  = "WIFI_PASSWORD";
 #define DIO2 12
 #define CLK3 13   // Display 3 - 4-digit
 #define DIO3 16
+#define TESLA 0   // Optional Tesla Logo LED
+#define LED 2
 
 // Includes
 #include <Arduino.h>
@@ -76,7 +80,7 @@ WiFiClient client;
 HTTPClient http;
 
 // Globals
-const uint8_t ANIMATION[36][4] PROGMEM = { 
+const uint8_t ANIMATION[36][4] PROGMEM = {
   /* Animation Data - HGFEDCBA Map */
   { 0x00, 0x00, 0x00, 0x00 },  // Frame 0
   { 0x01, 0x00, 0x00, 0x00 },  // Frame 1
@@ -140,6 +144,11 @@ char url[100];
 void setup() {
   time_t timevar;
 
+  pinMode(LED, OUTPUT);   // LED for ESP
+  digitalWrite(LED, 1);   // Turn Off
+  pinMode(TESLA, OUTPUT); // LED for TESLA Logo
+  digitalWrite(TESLA, 1); // Turn Off
+
   display1.setBrightness(2);
   display2.setBrightness(BRIGHT_HIGH);
   display3.setBrightness(BRIGHT_HIGH);
@@ -168,6 +177,7 @@ void setup() {
   Serial.println("Starting up WiFi...");
 
   // Initialize the WiFi system
+  digitalWrite(LED, 0); // Turn ON
   WiFi.mode(WIFI_STA);              // remove Fairylink default AP
   WiFi.begin(WIFI_SSID, WIFI_PWD);
 
@@ -175,7 +185,7 @@ void setup() {
   WiFi.hostname(host);
   display3.showString("SCAN..");
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(200);
     Serial.print(".");
     // display1.showNumber(counter);
     if ((counter % 4) == 0) display1.showString("-   ");
@@ -189,12 +199,22 @@ void setup() {
       ESP.restart();
     }
   }
+  digitalWrite(LED, 1); // Turn Off
+  digitalWrite(TESLA, 0); // Turn On
   display3.showString("ONLINE");
-  delay(1000);
+  // Finish Animation
+  while ((counter % 4) != 0) {
+    delay(200);
+    if ((counter % 4) == 0) display1.showString("-   ");
+    if ((counter % 4) == 1) display1.showString(" -  ");
+    if ((counter % 4) == 2) display1.showString("  - ");
+    if ((counter % 4) == 3) display1.showString("   -");
+    counter++;
+  }
   display1.clear();
+  delay(1000);
   display3.clear();
   display2.clear();
-
 }
 
 
@@ -228,7 +248,7 @@ void loop() {
     }
 
   }
-  
+
   // DISPLAY Metrics based on State - Run every interval (ms)
   if ((currentMillis - previousMillis >= interval) || (currentMillis < previousMillis) ) {
     previousMillis = currentMillis;
@@ -239,14 +259,14 @@ void loop() {
       // wait for WiFi connection
       if ((WiFiMulti.run() == WL_CONNECTED)) {
         Serial.print("[HTTP] begin...\n");
-        
+
         // pull solar data from server
         if (http.begin(client, url)) {  // HTTP
           Serial.printf("[HTTP] GET %s\n", url);
-          
+
           // start connection and send HTTP header
           int httpCode = http.GET();
-          if (httpCode > 0) {  
+          if (httpCode > 0) {
             // Sent GET Request
             Serial.printf("[HTTP] GET... code: %d\n", httpCode);
             if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
@@ -270,7 +290,13 @@ void loop() {
                 if (abs(grid) < FILTER) grid = 0;
                 if (abs(solar) < FILTER) solar = 0;
                 if (abs(battery) < FILTER) battery = 0;
-
+                
+                // Uncomment to force large number test
+                // grid = -12456;
+                // solar = 10123;
+                // battery = 24012;
+                // house = 15777;
+                
                 // create formatted strings
                 sprintf(dgrid, "E%5.0f", (float(abs(grid))));
                 sprintf(dhouse, "H%5.0f", (house));
@@ -296,6 +322,8 @@ void loop() {
       else
       {
         // Unable to connect to WiFi - Retry
+        digitalWrite(TESLA, 1); // Turn Off
+        digitalWrite(LED, 0); // Turn On
         counter = 0;
         display3.showString("SCAN.."); // SEArCH
         while (WiFi.status() != WL_CONNECTED) {
@@ -315,6 +343,8 @@ void loop() {
         display3.showString("ONLINE");
         display1.clear();
         display2.clear();
+        digitalWrite(LED, 1); // Turn Off
+        digitalWrite(TESLA, 0); // Turn On
         delay(500);
       } // else
     } // if (count >= fetch)
@@ -322,7 +352,8 @@ void loop() {
     // Refresh displays
 
     // Solar Production
-    display1.showNumber(int(solar));
+    if (solar > 9999) display1.showNumber(float(solar / 1000), 2);
+    else display1.showNumber(int(solar));
 
     // Battery Levels
     // display2.showLevel(int(batterylevel), false);
@@ -334,20 +365,38 @@ void loop() {
       case 0:
         // House (H)
         display3.setBrightness(6);
-        display3.showString(dhouse, 6, 0);
+        if (house > 9999) {
+          display3.showString("H     ");
+          display3.showNumber(float(house / 1000), 1, 4, 2);
+        }
+        else {
+          display3.showString(dhouse, 6, 0);
+        }
         state++;
         break;
       case 1:
         // Grid (E)
         display3.setBrightness(4);
-        display3.showString(dgrid, 6, 0);
+        if ((abs(grid)) > 9999) {
+          display3.showString("E     ");
+          display3.showNumber(float((abs(grid)) / 1000), 1, 4, 2);
+        }
+        else {
+          display3.showString(dgrid, 6, 0);
+        }
         state++;
         break;
       case 2:
       default:
         // Battery (P)
         display3.setBrightness(2);
-        display3.showString(dbattery, 6, 0);
+        if ((abs(battery)) > 9999) {
+          display3.showString("P     ");
+          display3.showNumber(float((abs(battery)) / 1000), 1, 4, 2);
+        }
+        else {
+          display3.showString(dbattery, 6, 0);
+        }
         state = 0;
         break;
     }
