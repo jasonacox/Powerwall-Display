@@ -3,6 +3,15 @@ Tesla Powerwall display based on 7-segment TM1637 displays and ESP8266 to show c
 
 [![Powerwall-Display-Video](https://img.youtube.com/vi/8YzZw6ldIqQ/0.jpg)](https://www.youtube.com/watch?v=8YzZw6ldIqQ "Play Video")
 
+* Display1 (4-digit white/yellow): Solar Power Generated
+* Display2 (6-digit red): Rotates thought the following Power metrics:
+    * (H)ouse Load
+    * (E)lectric Grid + direction animation
+    * (P)owerwall Battery + direction animation
+* Display3 (4-digit green): Powerwall Battery (% Full) + animation for charge/discharge
+
+The display will show values in watts (W) for 1-9999W values and kilowatts (kW) for 10.0kW and above.
+     
 ## 3D Printed Model
 The 3D printed case houses the ESP8266 WeMos controller, two 4-digit displays and one 6-digit display.  The model has a cutout TESLA logo that can be backlit.
 
@@ -21,9 +30,9 @@ The following components were used to build this kit:
 * Optional - Green LEDs for Logo Backlight
 
 ## Powerwall Proxy
-The display uses the `pyPowerwall` proxy to connect with the Powerwall API. You you will need to install this on a local system (Raspberry Pi, Linux or Windows system) that is alway running so that the display can pull the latest data. The proxy can be installed as a docker container.  Be sure to update the password, email, Powerwall host IP address and Timezone.
+The display uses the [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/proxy#pypowerwall-proxy-server) to connect with the Powerwall API. You you will need to install this on a local system (Raspberry Pi, Linux or Windows system) that is always running so that the display can pull the latest data. The proxy can be installed as a docker container.  Be sure to update the password, email, Powerwall host IP address and Timezone.
 
-Proxy Install Instructions:
+Proxy Install Instructions using Docker:
 
 ```bash
 docker run \
@@ -33,7 +42,6 @@ docker run \
     -e PW_EMAIL='your-powerwall-email' \
     -e PW_HOST='your-powerwall-ip-address' \
     -e PW_TIMEZONE='America/Los_Angeles' \
-    -e PW_DEBUG='yes' \
     -e PW_CACHE_EXPIRE='20' \
     --name pypowerwall \
     --restart unless-stopped \
@@ -41,9 +49,11 @@ docker run \
 ```
 
 ## Arduino Code
-The code uses TM1637TinyDisplay to drive the 7-segment 4-digit and 6-digit displays.  The Arudino sketch is located [here](Powerwall-Display/Powerwall-Display.ino).
+The code uses the [TM1637TinyDisplay](https://github.com/jasonacox/TM1637TinyDisplay) Arduino library to drive the 7-segment 4-digit and 6-digit displays (see installation [instructions here](https://github.com/jasonacox/TM1637TinyDisplay#installation)).
 
-Update the Configuration Section for your Setup in the sketch:
+1. Use the Arudino sketch located [here](Powerwall-Display/Powerwall-Display.ino).
+
+2. Update the Configuration Section for your Setup in the sketch:
 
 ```c++
 // Configuration Settings           
@@ -56,14 +66,17 @@ const char* WIFI_SSID = "WIFI_SSID";
 const char* WIFI_PWD  = "WIFI_PASSWORD";
 
 // Display GPIO Pins (Clock and Data)
-#define CLK1 5    // Display 1 - 4-digit
+#define CLK1 5    // Display 1 - 4-digit for SOLAR power display (Yellow)
 #define DIO1 4
-#define CLK2 14   // Display 2 - 6-digit
+#define CLK2 14   // Display 2 - 6-digit for POWER display for Grid, Home and Powerwall (Red)
 #define DIO2 12
-#define CLK3 13   // Display 3 - 4-digit
+#define CLK3 13   // Display 3 - 4-digit for BATTERY percentage (Green)
 #define DIO3 16
+#define TESLA 0   // Optional Tesla Logo LED
 ```
 
 ## Schematic
+
+The cirucit is fairly simple. As noted above in the code, the ESP8266 module will need to drive the CLK (clock) and DIO (data) input on three different display modules, one 6-digit modules and two 4-digit modules. There is an optional output for the Logo LED.
 
 ![schematic.png](schematic.png)
